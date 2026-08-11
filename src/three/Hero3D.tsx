@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Environment, OrbitControls } from '@react-three/drei'
 import { Suspense } from 'react'
 import { Helmet } from './Helmet'
+import { HelmetWireframe } from './HelmetWireframe'
 import { ASSETS } from '../config/assets'
 import * as THREE from 'three'
 
@@ -22,7 +23,10 @@ export function Hero3D() {
       {/* <spotLight position={[-6, 4, 2]} angle={0.5} intensity={1.2} color="#ff8000" /> */}
       <Suspense fallback={null}>
         <Environment files={ASSETS.hdri.light} environmentIntensity={0.5} />
-        <Helmet />
+        {/* <Helmet /> */}
+        <HelmetWireframe
+          autoRotate={false} 
+        />
       </Suspense>
       <OrbitControls enablePan={false} enableZoom={false} enableDamping dampingFactor={0.08} />
       {/* <EffectComposer>

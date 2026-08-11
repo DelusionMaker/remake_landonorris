@@ -3,6 +3,7 @@ import { Environment, OrbitControls } from '@react-three/drei'
 import { Suspense } from 'react'
 import { Helmet } from './Helmet'
 import { HelmetWireframe } from './HelmetWireframe'
+import { Head } from './Head'
 import { ASSETS } from '../config/assets'
 import * as THREE from 'three'
 
@@ -24,9 +25,11 @@ export function Hero3D() {
       <Suspense fallback={null}>
         <Environment files={ASSETS.hdri.light} environmentIntensity={0.5} />
         {/* <Helmet /> */}
-        <HelmetWireframe
+        {/* <HelmetWireframe
           autoRotate={false} 
-        />
+        /> */}
+        {/* 面片 + shader 的头部：depth 挤出立体轮廓，normal 做光照，alpha 裁剪 */}
+        <Head />
       </Suspense>
       <OrbitControls enablePan={false} enableZoom={false} enableDamping dampingFactor={0.08} />
       {/* <EffectComposer>

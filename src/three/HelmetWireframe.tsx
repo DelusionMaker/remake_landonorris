@@ -42,7 +42,7 @@ export function HelmetWireframe({
   const uniforms = useMemo(
     () => ({
       uScanY: { value: 0 },
-      uColor: { value: new THREE.Color('#7fd8ff') },
+      uColor: { value: new THREE.Color('#cccccc') },
       uScanWidth: { value: 0.5 },
     }),
     [],

@@ -12,5 +12,13 @@ export const ASSETS = {
     signature: '/assets/rive/signature.riv',
     reef: '/assets/rive/reef.riv',
   },
+  textures: {
+    head: {
+      diffuse: '/assets/textures/head/diffuse.webp',
+      alpha: '/assets/textures/head/alpha.webp',
+      depth: '/assets/textures/head/depth.webp',
+      normal: '/assets/textures/head/normal.webp',
+    },
+  },
   draco: '/draco/',
 } as const

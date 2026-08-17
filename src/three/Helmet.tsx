@@ -1,11 +1,16 @@
 import { useMemo } from 'react'
 import { useRef } from 'react'
 import * as THREE from 'three'
-import { Model } from './Model'
+import { Model, type RevealConfig } from './Model'
 import { ASSETS } from '../config/assets'
 import { loadTexture, type ClassifiedTextures } from './textures'
 
-export function Helmet() {
+type HelmetProps = {
+  /** 鼠标局部显示（探照灯）效果配置 */
+  reveal?: RevealConfig
+}
+
+export function Helmet({ reveal }: HelmetProps) {
   const group = useRef<THREE.Group>(null!)
   // useFrame(() => {
   //   const y = window.scrollY
@@ -73,6 +78,7 @@ export function Helmet() {
         textures={textures}
         // 定向把玻璃纹理应用到模型中的 "glass" 节点（Mesh.028）
         texturesByMesh={{ glass: glassTextures }}
+        reveal={reveal}
       />
     </group>
   )

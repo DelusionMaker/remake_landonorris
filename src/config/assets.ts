@@ -19,6 +19,22 @@ export const ASSETS = {
       depth: '/assets/textures/head/depth.webp',
       normal: '/assets/textures/head/normal.webp',
     },
+    // 头盔 PBR 纹理（按通道分组，替代 Helmet 中的硬编码路径）
+    helmet: {
+      gold: {
+        map: '/assets/textures/helmet/gold/Norris_Helmet_mat_BaseColor.webp',
+        metalnessMap: '/assets/textures/helmet/Norris_Helmet_mat_Metallic.webp',
+        normalMap: '/assets/textures/helmet/Norris_Helmet_mat_Normal.webp',
+        roughnessMap: '/assets/textures/helmet/Norris_Helmet_mat_Roughness.webp',
+      },
+    },
+    // 玻璃部件 PBR 纹理
+    glass: {
+      map: '/assets/textures/glass/Norris_Glass_mat_BaseColor.webp',
+      metalnessMap: '/assets/textures/glass/Norris_Glass_mat_Metallic.webp',
+      normalMap: '/assets/textures/glass/Norris_Glass_mat_Normal.webp',
+      roughnessMap: '/assets/textures/glass/Norris_Glass_mat_Roughness.webp',
+    },
   },
   draco: '/draco/',
 } as const

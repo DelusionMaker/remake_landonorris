@@ -1,4 +1,4 @@
-import { Hero3D } from '../three/Hero3D'
+import { Hero3D } from './Hero3D'
 
 export function Hero() {
   return (

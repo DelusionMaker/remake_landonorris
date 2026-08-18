@@ -1,5 +1,5 @@
 import Rive from '@rive-app/react-canvas'
-import { ASSETS } from '../config/assets'
+import { ASSETS } from '../../config/assets'
 
 export function SignatureRive() {
   return (

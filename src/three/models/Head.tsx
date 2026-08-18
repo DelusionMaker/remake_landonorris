@@ -17,9 +17,9 @@ type HeadProps = {
 }
 
 export function Head({
-  height = 4,
-  depthScale = 1.1,
-  tilt = 0.12,
+  height = 5,
+  depthScale = 0.35,
+  tilt = 0.10,
   damping = 0.06,
 }: HeadProps) {
   const group = useRef<THREE.Group>(null!)
@@ -61,9 +61,9 @@ export function Head({
       uDepthScale: { value: depthScale },
       uLightDir: { value: new THREE.Vector3(0.5, 0.8, 1).normalize() },
       uLightColor: { value: new THREE.Color('#ffffff') },
-      uLightStrength: { value: 0.8 },
-      uAmbientColor: { value: new THREE.Color('#3f4452') },
-      uRimColor: { value: new THREE.Color('#7fb2ff') },
+      uLightStrength: { value: 1 },
+      uAmbientColor: { value: new THREE.Color('#ffffffff') },
+      uRimColor: { value: new THREE.Color('#ffffffff') },
       uRimStrength: { value: 0.5 },
       uNormalStrength: { value: 1.0 },
       uAlphaCutoff: { value: 0.35 },
@@ -75,15 +75,15 @@ export function Head({
   useFrame((state) => {
     const g = group.current
     if (!g) return
-    g.rotation.x += (-state.pointer.y * tilt - g.rotation.x) * damping
-    g.rotation.y += (state.pointer.x * tilt - g.rotation.y) * damping
+    g.rotation.x += (state.pointer.y * tilt - g.rotation.x) * damping
+    g.rotation.y += (-state.pointer.x * tilt - g.rotation.y) * damping
   })
 
   return (
     <group ref={group}>
       <mesh position={[0, 0, -0.5]} scale={[height * aspect, height, 1]}>
-        {/* 足够多的细分，深度位移才能平滑 */}
-        <planeGeometry args={[1, 1, 256, 256]} />
+        {/* 视差贴图在片元着色器完成，平面无需高细分，降低开销 */}
+        <planeGeometry args={[1, 1, 32, 32]} />
         <shaderMaterial
           uniforms={uniforms}
           vertexShader={HEAD_VERTEX_SHADER}

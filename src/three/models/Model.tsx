@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { type ClassifiedTextures, applyTexturesToMaterial } from '../materials/textures'
 import { useModelFit } from '../hooks/useModelFit'
+import { TRAIL_SAMPLES, trailHistory } from '../trail/TrailHistory'
 import {
   createRevealUniforms,
   injectReveal,
@@ -11,16 +12,20 @@ import {
   traverseMaterials,
 } from '../shaders/revealShader'
 
-/** 鼠标局部显示（探照灯）效果配置 */
+/** 鼠标局部显示（轨迹式探照灯）效果配置 */
 export type RevealConfig = {
-  /** 显示半径（NDC 空间，0.42 ≈ 屏幕宽度/高度的 42%） */
-  radius?: number
-  /** 边缘柔化过渡宽度（NDC） */
-  smoothness?: number
-  /** 半径之外的基准透明度：0 完全隐藏；0.04 左右保留淡淡轮廓便于引导 */
-  baseOpacity?: number
   /** 鼠标是否在画布内（外部用 ref 维护，避免触发 React 重渲染） */
   hoveredRef?: { current: boolean }
+  /** 无轨迹时的基础透明度：0 完全隐藏；0.04 左右保留淡淡轮廓便于引导 */
+  baseOpacity?: number
+  /** 轨迹光斑衰减速度：越大显现区域越细 */
+  trailSize?: number
+  /** 轨迹强度（0~1）：放大模型显示亮度 */
+  trailIntensity?: number
+  /** 硬边阈值（0~1）：亮度超过该值显示，否则隐藏，边缘无渐变 */
+  revealThreshold?: number
+  /** 轨迹存活时长（秒）：鼠标停止后在该时长内渐渐消失 */
+  trailDuration?: number
 }
 
 // 组件接收的属性类型定义
@@ -42,7 +47,7 @@ type ModelProps = {
   // 按 mesh 名称定向应用的纹理集：key 为 mesh 名称（不区分大小写、子串匹配），
   // 匹配到的 mesh 仅使用该纹理集（替换通用 textures），用于给玻璃等部件单独贴材质
   texturesByMesh?: Record<string, ClassifiedTextures>
-  // 鼠标局部显示（探照灯）效果：不传则保持原有行为
+  // 鼠标局部显示（轨迹式探照灯）效果：不传则保持原有行为
   reveal?: RevealConfig
 }
 
@@ -114,7 +119,7 @@ export function Model({
     })
   }, [gltf, textures, texturesByMesh])
 
-  // ---------- 鼠标局部显示（探照灯）效果 ----------
+  // ---------- 鼠标局部显示（轨迹式探照灯）效果 ----------
   // 用 ref 保存最新配置，避免 reveal 对象每次渲染变化时重复注入
   const revealRef = useRef(reveal)
   revealRef.current = reveal
@@ -126,28 +131,39 @@ export function Model({
   useEffect(() => {
     const cfg = revealRef.current
     if (!cfg) return
-    revealUniforms.uRadius.value = cfg.radius ?? 0.4
-    revealUniforms.uSmooth.value = cfg.smoothness ?? 0.15
     revealUniforms.uBaseAlpha.value = cfg.baseOpacity ?? 0
+    revealUniforms.uTrailSize.value = cfg.trailSize ?? 14
+    revealUniforms.uTrailIntensity.value = cfg.trailIntensity ?? 1
+    revealUniforms.uRevealThreshold.value = cfg.revealThreshold ?? 0.15
+    revealUniforms.uTrailDuration.value = cfg.trailDuration ?? 3
+    revealUniforms.uTrail.value = trailHistory.texture
+    revealUniforms.uTrailSamples.value = TRAIL_SAMPLES
   }, [revealUniforms, reveal])
 
   // 给所有 mesh 材质注入「鼠标局部显示」shader
   // 注意：此 effect 必须放在「应用纹理」的 useEffect 之后，先贴图再改材质
   useEffect(() => {
     if (!reveal) {
-      // 关闭效果时还原材质
+      // 关闭效果时还原材质与渲染层级
       traverseMaterials(gltf.scene, restoreReveal)
+      gltf.scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) child.renderOrder = 0
+      })
       return
     }
 
+    // 头盔显示区域绘制在轨迹平面（renderOrder=1）之上，
+    // 这样灰色轨迹覆盖 Head 但不会盖住头盔的 reveal 显示
+    gltf.scene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) child.renderOrder = 2
+    })
     traverseMaterials(gltf.scene, (m) => injectReveal(m, revealUniforms))
   }, [gltf, revealUniforms, reveal])
 
-  // 每帧：更新鼠标位置与淡入淡出（鼠标离开画布后平滑消失）
+  // 每帧：更新轨迹时间与淡入淡出（鼠标离开画布后平滑消失）
   useFrame((state, delta) => {
     if (!revealRef.current) return
-    revealUniforms.uMouse.value.set(state.pointer.x, state.pointer.y)
-    revealUniforms.uAspect.value = state.viewport.aspect
+    revealUniforms.uTime.value = state.clock.elapsedTime
     const hovered = revealRef.current.hoveredRef?.current ?? true
     const target = hovered ? 1 : 0
     revealUniforms.uHover.value = THREE.MathUtils.damp(
@@ -157,7 +173,7 @@ export function Model({
       delta,
     )
   })
-  // ---------- 探照灯效果结束 ----------
+  // ---------- 轨迹式探照灯效果结束 ----------
 
   return (
     // 外层 group 承载自动旋转；内层直接挂载加载好的模型场景

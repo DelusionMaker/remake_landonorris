@@ -22,6 +22,10 @@ type HelmetWireframeProps = {
   scanWidth?: number
   // 扫描亮带处的线框颜色
   wireColor?: string
+  // 跟随指针的最大倾斜角（弧度），与 Head 保持一致
+  tilt?: number
+  // 指针响应的阻尼系数（0~1，越小越平滑），与 Head 保持一致
+  damping?: number
 }
 
 export function HelmetWireframe({
@@ -31,6 +35,8 @@ export function HelmetWireframe({
   scanSpeed = 0.5,
   scanWidth = 0.5,
   wireColor = '#cccccc',
+  tilt = 0.1,
+  damping = 0.06,
 }: HelmetWireframeProps) {
   // 复用 useGLTF 的缓存加载模型，深克隆出一份独立 scene，
   // 避免修改共享的 gltf.scene（否则会同时影响 Helmet / Model 组件的材质与变换）
@@ -71,10 +77,16 @@ export function HelmetWireframe({
     })
   }, [scene, uniforms, scan, wireColor])
 
-  // 驱动旋转与扫描动画
+  // 驱动旋转、指针倾斜与扫描动画
   useFrame((state, delta) => {
-    if (autoRotate && spin.current) {
-      spin.current.rotation.y += delta * rotateSpeed
+    const g = spin.current
+    // 与 Head 相同的指针跟随倾斜：线框与头盔同步晃动
+    if (g) {
+      g.rotation.x += (state.pointer.y * tilt - g.rotation.x) * damping
+      g.rotation.y += (-state.pointer.x * tilt - g.rotation.y) * damping
+    }
+    if (autoRotate && g) {
+      g.rotation.y += delta * rotateSpeed
     }
     if (!scan || !bounds.current) return
     const { minY, maxY } = bounds.current

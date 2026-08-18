@@ -42,7 +42,7 @@ export function AssetCanvas({
   cameraFov = 35,
   hdri = ASSETS.hdri.dark,
   environmentIntensity = 1,
-  bloom = true,
+  bloom = false,
   directionalLight = 1.2,
   enableControls = false,
   hoveredRef,

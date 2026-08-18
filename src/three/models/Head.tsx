@@ -17,7 +17,7 @@ type HeadProps = {
 }
 
 export function Head({
-  height = 5,
+  height = 4,
   depthScale = 1.1,
   tilt = 0.12,
   damping = 0.06,

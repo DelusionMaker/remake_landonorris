@@ -25,7 +25,7 @@ type HelmetWireframeProps = {
 }
 
 export function HelmetWireframe({
-  autoRotate = true,
+  autoRotate = false,
   rotateSpeed = 0.4,
   scan = true,
   scanSpeed = 0.5,

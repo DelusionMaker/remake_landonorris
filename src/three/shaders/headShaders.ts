@@ -73,7 +73,7 @@ export const HEAD_FRAGMENT_SHADER = /* glsl */ `
     float rim = pow(1.0 - max(dot(N, V), 0.0), 3.0);
 
     vec3 color = albedo * (uAmbientColor + uLightColor * uLightStrength * wrap);
-    color += uRimColor * rim * uRimStrength;
+    // color += uRimColor * rim * uRimStrength;
 
     // 线性 → sRGB：恢复到显示器上的正确颜色
     color = pow(color, vec3(1.0 / 2.2));

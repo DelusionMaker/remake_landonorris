@@ -3,6 +3,8 @@ import { AssetCanvas } from '../../three/scenes/AssetCanvas'
 import { ASSETS } from '../../config/assets'
 import { useHoverRef } from '../../three/hooks/useHoverRef'
 import * as THREE from 'three'
+import { HelmetWireframe } from '../../three/models/HelmetWireframe'
+import { Head } from '../../three/models/Head'
 
 export function Hero3D() {
   // 用 ref 维护 hovered，避免每次鼠标进出都触发 Canvas 子树重渲染
@@ -21,7 +23,7 @@ export function Hero3D() {
       enableControls
       hoveredRef={hovered}
     >
-      <Helmet
+      {/* <Helmet
         reveal={{
           radius: 0.42, // 显示半径，可调
           smoothness: 0.2, // 边缘柔化宽度
@@ -29,6 +31,8 @@ export function Hero3D() {
           hoveredRef: hovered,
         }}
       />
+      <HelmetWireframe /> */}
+      <Head />
     </AssetCanvas>
   )
 }

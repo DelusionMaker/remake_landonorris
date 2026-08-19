@@ -65,8 +65,9 @@ export const HEAD_FRAGMENT_SHADER = /* glsl */ `
     vec4 alphaMap = texture2D(uAlpha, uv);
     vec3 normalMap = texture2D(uNormal, uv).xyz;
 
-    // sRGB → 线性
-    vec3 albedo = pow(diffuse.rgb, vec3(2.2));
+    // diffuse 已设置 colorSpace = SRGBColorSpace，GPU 采样时自动完成 sRGB → 线性解码，
+    // 这里不能再 pow(2.2) 二次解码，否则中灰会被压成 0.032，颜色严重变暗。
+    vec3 albedo = diffuse.rgb;
 
     // 法线贴图 → 世界空间光照
     vec3 nTex = normalMap * 2.0 - 1.0;
